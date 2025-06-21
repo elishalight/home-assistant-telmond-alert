@@ -2,11 +2,11 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
 async def async_setup(hass: HomeAssistant, config: dict):
-    # no YAML config support
+    # No YAML config supported, so just return True
     return True
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
-    # Set up your integration here after UI setup
+    # Forward setup to sensor platform
     hass.async_create_task(
         hass.config_entries.async_forward_entry_setup(entry, "sensor")
     )
