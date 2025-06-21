@@ -1,7 +1,11 @@
-from homeassistant.helpers.entity_platform import async_generate_entity_id
-from homeassistant.helpers.entity import Entity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity import Entity
+import aiohttp
+import logging
+from .const import TARGET_CITY, URL, HEADERS
+
+_LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities):
     sensors = [
@@ -15,9 +19,6 @@ class TelMondRedAlertSensor(Entity):
     def __init__(self, sensor_type):
         self._type = sensor_type
         self._state = None
-        self.entity_id = async_generate_entity_id(
-            "sensor.tel_mond_red_alert_{}", sensor_type, hass=hass
-        )
 
     @property
     def name(self):
@@ -28,8 +29,6 @@ class TelMondRedAlertSensor(Entity):
         return self._state
 
     async def async_update(self):
-        # async friendly update with aiohttp, example below
-        import aiohttp
         try:
             async with aiohttp.ClientSession() as session:
                 async with session.get(URL, headers=HEADERS) as resp:
