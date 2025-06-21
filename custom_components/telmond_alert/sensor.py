@@ -1,13 +1,9 @@
-import requests
-import logging
-from datetime import timedelta
-from homeassistant.components.sensor import SensorEntity
-from .const import DOMAIN, TARGET_CITY, URL, HEADERS
+from homeassistant.helpers.entity_platform import async_generate_entity_id
+from homeassistant.helpers.entity import Entity
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
 
-_LOGGER = logging.getLogger(__name__)
-SCAN_INTERVAL = timedelta(seconds=60)
-
-async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities):
     sensors = [
         TelMondRedAlertSensor("alert"),
         TelMondRedAlertSensor("leave"),
@@ -15,17 +11,29 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     ]
     async_add_entities(sensors, True)
 
-class TelMondRedAlertSensor(SensorEntity):
+class TelMondRedAlertSensor(Entity):
     def __init__(self, sensor_type):
-        self._attr_name = f"Tel_Mond_Red_Alert_{sensor_type.capitalize()}"
-        self._state = None
         self._type = sensor_type
+        self._state = None
+        self.entity_id = async_generate_entity_id(
+            "sensor.tel_mond_red_alert_{}", sensor_type, hass=hass
+        )
 
-    def update(self):
+    @property
+    def name(self):
+        return f"Tel Mond Red Alert {self._type.capitalize()}"
+
+    @property
+    def state(self):
+        return self._state
+
+    async def async_update(self):
+        # async friendly update with aiohttp, example below
+        import aiohttp
         try:
-            response = requests.get(URL, headers=HEADERS, timeout=10)
-            response.encoding = 'utf-8-sig'
-            data = response.json()
+            async with aiohttp.ClientSession() as session:
+                async with session.get(URL, headers=HEADERS) as resp:
+                    data = await resp.json()
             alerts = data.get("data", [])
             city_alert = any(TARGET_CITY in alert.get("cities", []) for alert in alerts)
 
@@ -39,7 +47,3 @@ class TelMondRedAlertSensor(SensorEntity):
         except Exception as e:
             _LOGGER.error(f"Tel Mond Red Alert sensor update failed: {e}")
             self._state = None
-
-    @property
-    def state(self):
-        return self._state
