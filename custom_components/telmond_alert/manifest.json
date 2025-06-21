@@ -3,7 +3,8 @@
   "name": "Tel Mond Red Alert By Elisha Design",
   "version": "1.0.0",
   "documentation": "https://github.com/elishalight/home-assistant-telmond-alert",
+  "config_flow": true,
   "dependencies": [],
-  "codeowners": ["elishalight"],
+  "codeowners": ["@elishalight"],
   "requirements": []
 }
