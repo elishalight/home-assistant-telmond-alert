@@ -1,0 +1,9 @@
+{
+  "domain": "telmond_alert",
+  "name": "Tel Mond Red Alert By Elisha Design",
+  "version": "1.0.0",
+  "documentation": "https://github.com/YOUR_GITHUB_USERNAME/home-assistant-telmond-alert",
+  "dependencies": [],
+  "codeowners": ["@elishalight"],
+  "requirements": []
+}
